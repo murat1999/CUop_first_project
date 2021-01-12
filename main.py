@@ -1,7 +1,10 @@
 import numpy as np
 import glob
+import sys
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
+
+file = sys.argv[1]
 
 
 def calculate(arr, arr2, arr3):
@@ -57,6 +60,7 @@ def find_distance(infile):
     velocity = calculate(velocity, distance, time)
     acceleration = calculate(acceleration, velocity, time)
     smoothed_velocity = savgol_filter(velocity, (lambda l: l - 1 if l % 2 == 0 else l)(len(velocity)), 8)
+    smoothed_acceleration = savgol_filter(acceleration, (lambda l: l - 1 if l % 2 == 0 else l)(len(acceleration)), 8)
 
     gmx, gmn = find_local_maxima_and_minima(smoothed_velocity)
     # print(gmx)
@@ -66,8 +70,10 @@ def find_distance(infile):
     # plt.plot(time, velocity, label="Graph")
 
     if len(gmx) > 1:
+        print(distance[gmx[1]])
         return distance[gmx[1]]
     else:
+        print(distance[gmx[0]])
         return distance[gmx[0]]
 
 
@@ -76,22 +82,23 @@ def main():
     list_7m_files = read_files('test_7m')
     result_4m = []
     result_7m = []
-    for file in list_4m_files:
-        result_4m.append(find_distance(file))
-    for file in list_7m_files:
-        result_7m.append(find_distance(file))
-    statistics = {'4m_min': np.min(result_4m), '4m_max': np.max(result_4m), '4m_mean': np.mean(result_4m),
-                  '4m_standard_deviation': np.std(result_4m), '7m_min': np.min(result_7m), '7m_max': np.max(result_7m),
-                  '7m_mean': np.mean(result_7m), '7m_standard_deviation': np.std(result_7m)}
+    find_distance(file)
+    #for file in list_4m_files:
+     #   result_4m.append(find_distance(file))
+    #for file in list_7m_files:
+     #   result_7m.append(find_distance(file))
+    #statistics = {'4m_min': np.min(result_4m), '4m_max': np.max(result_4m), '4m_mean': np.mean(result_4m),
+     #             '4m_standard_deviation': np.std(result_4m), '7m_min': np.min(result_7m), '7m_max': np.max(result_7m),
+      #            '7m_mean': np.mean(result_7m), '7m_standard_deviation': np.std(result_7m)}
     # print(result_4m)
     # print(result_7m)
     # print(statistics['4m_mean'])
 
-    with open('result.csv', 'w') as out:
-        for key in statistics.keys():
-            out.write("%s: %s\n"%(key, statistics[key]))
-    out.close()
-    return result_4m, result_7m, statistics, out
+    #with open('result.csv', 'w') as out:
+     #   for key in statistics.keys():
+      #      out.write("%s: %s\n" % (key, statistics[key]))
+    #out.close()
+    return result_4m, result_7m
 
 
 if __name__ == '__main__':
